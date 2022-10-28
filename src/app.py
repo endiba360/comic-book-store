@@ -30,7 +30,7 @@ def fetch_all_characters():
                 
         return list_of_characters
     else:
-        print('Something went wrong...')
+        return jsonify({'message': 'Something went wrong...', 'code': response_json['code']})
 
 @app.route('/searchComics/<int:comic_id>', methods=['GET'])
 def fetch_one_comic(comic_name):
@@ -50,6 +50,7 @@ def fetch_one_character(character_name):
     
     if response_json['code'] == 200:
         match_character = response_json['data']['results']
+        
         processed_character = {}
         # Check each key of matched character to assign only required information
         for key in match_character:
@@ -61,7 +62,7 @@ def fetch_one_character(character_name):
         
         return processed_character
     else:
-        print('Something went wrong...')
+        return jsonify({'message': 'Something went wrong...', 'code': response_json['code']})
     
 
 if __name__ == '__main__':
