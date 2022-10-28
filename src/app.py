@@ -32,16 +32,44 @@ def fetch_all_characters():
     else:
         return jsonify({'message': 'Something went wrong...', 'code': response_json['code']})
 
-@app.route('/searchComics/<int:comic_id>', methods=['GET'])
+@app.route('/searchComics/comic/<string:comic_name>', methods=['GET'])
 def fetch_one_comic(comic_name):
-    pass
+    name = comic_name
+    # In order to find comic name, check if name contains any white space and replace it
+    if ' ' in name:
+        name.replace(' ', '%20')
+        
+    query_one_by_name = f'https://gateway.marvel.com:443/v1/public/comics?ts={marvel_timestamp}&title={name}&apikey={marvel_api_public_key}&hash={marvel_hash}'
+    response = requests.get(query_one_by_name)
+    response_json = response.json()
+    
+    if response_json['code'] == 200:
+        match_comic = response_json['data']['results']
+        # Check if our array of matched comics is empty
+        if not match_comic:
+            return jsonify({'message': 'There are no matches, please try again'})
+        # One match could have multiple results
+        list_of_comics = []
+        for comic in match_comic:
+            processed_comic = {}
+            processed_comic['id'] = comic['id']
+            processed_comic['title'] = comic['title']
+            processed_comic['image'] = comic['thumbnail']['path']
+            processed_comic['onSaleDate'] = comic['dates'][0]['date']
+            print(processed_comic)
+            # Check each element to avoid duplicates
+            if processed_comic not in list_of_comics:
+                list_of_comics.append(processed_comic)
+        
+        return list_of_comics
+    else:
+        return jsonify({'message': 'Something went wrong...', 'code': response_json['code']})
 
-@app.route('/searchComics/<string:character_name>', methods=['GET'])
+@app.route('/searchComics/character/<string:character_name>', methods=['GET'])
 def fetch_one_character(character_name):
     name = character_name
     # In order to find character, check if name contains any white space and replace it
     if ' ' in name:
-        print(True)
         name.replace(' ', '%20')
         
     query_one_by_name = f'https://gateway.marvel.com:443/v1/public/characters?ts={marvel_timestamp}&name={name}&apikey={marvel_api_public_key}&hash={marvel_hash}'
@@ -50,6 +78,9 @@ def fetch_one_character(character_name):
     
     if response_json['code'] == 200:
         match_character = response_json['data']['results']
+        
+        if not match_character:
+            return jsonify({'message': 'There are no matches, please try again'})
         
         processed_character = {}
         # Check each key of matched character to assign only required information
