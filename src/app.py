@@ -1,3 +1,4 @@
+from crypt import methods
 import requests
 from flask import Flask, jsonify
 from marvel import characters, marvel_hash, marvel_api_public_key, marvel_timestamp
@@ -95,6 +96,15 @@ def fetch_one_character(character_name):
     else:
         return jsonify({'message': 'Something went wrong...', 'code': response_json['code']})
     
+@app.route('/users/', methods=['GET'])
+def users_handler():
+    # Fetch all users
+    pass
+
+@app.route('/users/sing-up', methods=['POST'])
+def users_sing_up():
+    # Sign up a new user, add to db
+    pass
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=4000, debug=True)
