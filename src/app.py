@@ -39,6 +39,11 @@ def fetch_one_comic(comic_name):
 @app.route('/searchComics/<string:character_name>', methods=['GET'])
 def fetch_one_character(character_name):
     name = character_name
+    # In order to find character, check if name contains any white space and replace it
+    if ' ' in name:
+        print(True)
+        name.replace(' ', '%20')
+        
     query_one_by_name = f'https://gateway.marvel.com:443/v1/public/characters?ts={marvel_timestamp}&name={name}&apikey={marvel_api_public_key}&hash={marvel_hash}'
     response = requests.get(query_one_by_name)
     response_json = response.json()
@@ -46,7 +51,7 @@ def fetch_one_character(character_name):
     if response_json['code'] == 200:
         match_character = response_json['data']['results']
         processed_character = {}
-        
+        # Check each key of matched character to assign only required information
         for key in match_character:
             processed_character['id'] = key['id']
             processed_character['name'] = key['name']
