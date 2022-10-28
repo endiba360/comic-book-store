@@ -1,7 +1,19 @@
-from crypt import methods
+import os
+
 import requests
+from dotenv import load_dotenv
 from flask import Flask, jsonify
-from marvel import characters, marvel_hash, marvel_api_public_key, marvel_timestamp
+from pymongo import MongoClient
+
+from marvel import (characters, marvel_api_public_key, marvel_hash,
+                    marvel_timestamp)
+
+# db configuration
+load_dotenv()
+MONGODB_URI = os.environ['MONGODB_URI']
+client = MongoClient(MONGODB_URI)
+db = client['comic-store']
+users = db['users']
 
 app = Flask(__name__)
 
@@ -98,8 +110,10 @@ def fetch_one_character(character_name):
     
 @app.route('/users/', methods=['GET'])
 def users_handler():
-    # Fetch all users
-    pass
+    # Fetch all users from database
+    for db_info in client.list_database_names():
+        print(db_info)
+    return 'hello'
 
 @app.route('/users/sing-up', methods=['POST'])
 def users_sing_up():
